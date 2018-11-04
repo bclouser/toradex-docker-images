@@ -1,0 +1,13 @@
+[Unit]
+Description=Setup the Xorg Configuration file
+
+[Service]
+EnvironmentFile=/etc/docker.env
+ExecStart=/usr/bin/config-xorg.sh
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/console
+Restart=on-failure
+
+[Install]
+WantedBy=basic.target

@@ -1,4 +1,4 @@
-FROM resin/armv7hf-debian:buster
+FROM bclouser/debian-core:latest
 
 RUN [ "cross-build-start" ]
 
@@ -35,3 +35,4 @@ RUN git config --global user.email "you@example.com" \
 && git config --global user.name "Han Solo"
 
 RUN [ "cross-build-end" ]
+

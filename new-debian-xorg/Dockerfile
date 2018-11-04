@@ -1,4 +1,4 @@
-FROM bclouser/debian-builder AS build
+FROM bclouser/debian-builder:latest AS build
 
 RUN [ "cross-build-start" ]
 
@@ -62,32 +62,35 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
     && apt-get clean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
 
 ## Copy over Armada packages from previous context
-RUN mkdir /tempPackages
-COPY --from=0 /sandbox/*.deb /tempPackages/
+COPY --from=build /sandbox/*.deb /tmp/
 
 ## Install libdrm (Armada module build depends on it)
-RUN cd /tempPackages && dpkg -i libdrm-armada2_2.0.3-1_armhf.deb && dpkg -i libdrm-armada-dev_2.0.3-1_armhf.deb \
+RUN cd /tmp && dpkg -i libdrm-armada2_2.0.3-1_armhf.deb && dpkg -i libdrm-armada-dev_2.0.3-1_armhf.deb \
 && ln -s /usr/lib/arm-linux-gnueabihf/pkgconfig/libdrm_armada.pc /usr/lib/arm-linux-gnueabihf/pkgconfig/libdrm-armada2.pc
 ENV PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
 # ^^^ So, this is a hack. The dpkg should be installing a 
 # libdrm-armada2.pc on its own... or the package should be named differently.
 
 # Install Armada xorg modules
-RUN cd /tempPackages && dpkg -i xserver-xorg-video-armada_0.0.0-1_armhf.deb
+RUN cd /tmp && dpkg -i xserver-xorg-video-armada_0.0.0-1_armhf.deb
 
-RUN rm -rf /tempPackages
+RUN rm -rf /tmp
 COPY xorg.conf.* /etc/X11/
 
+COPY entry.sh /usr/bin/entry.sh
+COPY launch.service /etc/systemd/system/launch.service
 
-### Resin has their own custom "entry.sh"
-### It creates, modifies, and runs /etc/resinApp.sh
+### Actually setup xorg to start from systemd by default
+COPY xorg.service /etc/systemd/system/xorg.service
 
 ### Add our own custom init script and systemd unit file
-COPY customApp.sh /usr/bin/customApp.sh
-COPY custom-app.service /etc/systemd/system/custom-app.service
-RUN systemctl enable custom-app.service
+COPY config-xorg.sh /usr/bin/config-xorg.sh
+COPY config-xorg.service /etc/systemd/system/config-xorg.service
+
+RUN systemctl enable launch.service && systemctl enable xorg.service && systemctl enable config-xorg.service
 
 ENV DISPLAY :0
-ENV INITSYSTEM 1
+
+ENTRYPOINT ["/usr/bin/entry.sh"]
 
 RUN [ "cross-build-end" ]

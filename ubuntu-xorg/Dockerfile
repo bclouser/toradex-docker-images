@@ -11,8 +11,8 @@ COPY qemu-arm-static /usr/bin/
 
 # Resin-xbuild
 COPY resin-xbuild /usr/bin/
-RUN ln -s resin-xbuild /usr/bin/cross-build-start \
-    && ln -s resin-xbuild /usr/bin/cross-build-end
+RUN ln -s /usr/bin/resin-xbuild /usr/bin/cross-build-start \
+    && ln -s /usr/bin/resin-xbuild /usr/bin/cross-build-end
 
 RUN apt-get -y update && apt-get install -y  --no-install-recommends \
         apt-utils \

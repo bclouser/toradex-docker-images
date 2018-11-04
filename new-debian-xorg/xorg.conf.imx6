@@ -1,0 +1,5 @@
+Section "Device"
+	Identifier	"Driver0"
+	Screen		0
+	Driver		"armada"
+EndSection

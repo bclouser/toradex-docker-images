@@ -84,6 +84,7 @@ COPY xorg.conf.* /etc/X11/
 
 ### Add our own custom init script and systemd unit file
 COPY customApp.sh /usr/bin/customApp.sh
+RUN chmod =x /usr/bin/customApp.sh
 COPY custom-app.service /etc/systemd/system/custom-app.service
 RUN systemctl enable custom-app.service
 

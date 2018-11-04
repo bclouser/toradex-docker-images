@@ -1,4 +1,4 @@
-FROM bshibley/ubuntu-xorg:bionic
+FROM bclouser/ubuntu-xorg:bionic
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
     lxde-core \
